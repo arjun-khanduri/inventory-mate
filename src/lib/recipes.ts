@@ -102,9 +102,9 @@ function normalize(raw: unknown): Recipe[] {
 }
 
 export async function generateRecipes(items: InventoryItem[]): Promise<Recipe[]> {
-    if (!API_URL) {
+    if (!API_URL || !MODEL) {
         throw new Error(
-            "Recipe service not configured. Set NEXT_PUBLIC_RECIPE_API_URL to your Cloudflare Worker URL.",
+            "This is not on you. We apologize for the inconvenience",
         );
     }
 
@@ -124,6 +124,9 @@ export async function generateRecipes(items: InventoryItem[]): Promise<Recipe[]>
 
     if (!res.ok) {
         const text = await res.text();
+        if (res.status === 429) {
+            throw new Error("You've attempted to generate recipes too quickly. Please try again in some time.")
+        }
         throw new Error(`Recipe service error (${res.status}): ${text.slice(0, 200)}`);
     }
 
