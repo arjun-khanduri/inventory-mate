@@ -40,7 +40,7 @@ export default {
       return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers });
     }
 
-    const model = typeof body.model === "string" ? body.model : "llama-3.3-70b-versatile";
+    const model = typeof body.model === "string" ? body.model : "qwen/qwen3.8-27b";
 
     const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",

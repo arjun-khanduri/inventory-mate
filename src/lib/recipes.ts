@@ -11,7 +11,7 @@ import { uid } from "./id";
  *   NEXT_PUBLIC_RECIPE_MODEL   -> optional, defaults to llama-3.3-70b-versatile
  */
 const API_URL = process.env.NEXT_PUBLIC_RECIPE_API_URL;
-const MODEL = process.env.NEXT_PUBLIC_RECIPE_MODEL ?? "llama-3.3-70b-versatile";
+const MODEL = process.env.NEXT_PUBLIC_RECIPE_MODEL ?? "qwen/qwen3.8-27b";
 
 export const STAPLES: string[] = [
   "salt",
