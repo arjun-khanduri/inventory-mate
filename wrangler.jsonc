@@ -1,0 +1,5 @@
+{
+  "vars": {
+    "NEXT_PUBLIC_RECIPE_API_URL": "https://inventory-mate-recipes.arkh18cs.workers.dev"
+  }
+}

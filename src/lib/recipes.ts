@@ -9,8 +9,7 @@ import { uid } from "./id";
  * The Worker URL is not secret, so it ships as a default; override with
  * NEXT_PUBLIC_RECIPE_API_URL if you ever move the Worker.
  */
-const API_URL =
-  process.env.NEXT_PUBLIC_RECIPE_API_URL ?? "https://inventory-mate-recipes.arkh18cs.workers.dev";
+const API_URL = process.env.NEXT_PUBLIC_RECIPE_API_URL;
 const MODEL = process.env.NEXT_PUBLIC_RECIPE_MODEL ?? "qwen/qwen3.8-27b";
 
 export const STAPLES: string[] = [
