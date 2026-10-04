@@ -10,7 +10,7 @@ import { uid } from "./id";
  * NEXT_PUBLIC_RECIPE_API_URL if you ever move the Worker.
  */
 const API_URL = process.env.NEXT_PUBLIC_RECIPE_API_URL;
-const MODEL = process.env.NEXT_PUBLIC_RECIPE_MODEL ?? "qwen/qwen3.8-27b";
+const MODEL = process.env.NEXT_PUBLIC_RECIPE_MODEL;
 
 export const STAPLES: string[] = [
   "salt",
