@@ -1,4 +1,9 @@
 {
+  "name": "inventory-mate",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./out"
+  },
   "vars": {
     "NEXT_PUBLIC_RECIPE_API_URL": "https://inventory-mate-recipes.arkh18cs.workers.dev"
   }
