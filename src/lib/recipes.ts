@@ -3,13 +3,15 @@ import { daysUntil } from "./date";
 import { uid } from "./id";
 
 /**
- * The serverless proxy (Cloudflare Worker in `worker/`) forwards these Gemini
- * `generateContent` requests and holds the API key. Configure the two env vars:
- *   NEXT_PUBLIC_RECIPE_API_URL  -> your deployed Worker URL (e.g. https://fridge.<subdomain>.workers.dev)
- *   NEXT_PUBLIC_GEMINI_MODEL    -> optional, defaults to gemini-3-flash-preview
+ * Recipe generation runs on Groq's hosted open-weight models (Llama/Mistral/Qwen)
+ * through a serverless proxy (the Cloudflare Worker in `worker/`), which holds the key.
+ *
+ * Env vars (both NEXT_PUBLIC_ so they are inlined at build time):
+ *   NEXT_PUBLIC_RECIPE_API_URL -> your deployed Worker URL
+ *   NEXT_PUBLIC_RECIPE_MODEL   -> optional, defaults to llama-3.3-70b-versatile
  */
 const API_URL = process.env.NEXT_PUBLIC_RECIPE_API_URL;
-const MODEL = process.env.NEXT_PUBLIC_GEMINI_MODEL ?? "gemini-3-flash-preview";
+const MODEL = process.env.NEXT_PUBLIC_RECIPE_MODEL ?? "llama-3.3-70b-versatile";
 
 export const STAPLES: string[] = [
   "salt",
@@ -38,7 +40,18 @@ export function coveragePercent(ingredients: RecipeIngredient[]): number {
   return Math.round((have / total) * 100);
 }
 
-function buildPrompt(items: InventoryItem[]): string {
+const SYSTEM_PROMPT = `You are a home cooking assistant. Given the items in the user's fridge and a list of assumed pantry staples, suggest recipes the user can make.
+
+Rules:
+- Prioritize items that expire soonest; try to use them up.
+- Mark an ingredient "have" only when it plausibly matches an item in the fridge list. Match by common sense, not exact wording (e.g. "sour cream" matches "cream", "chicken breast" matches "chicken"). Do NOT mark "have" for anything not in the fridge list.
+- Mark an ingredient "staple" only when it is a basic pantry item from the staples list.
+- Otherwise mark it "missing" (the user would need to buy it).
+- Produce exactly 5 recipes, preferring those with many "have" ingredients and few "missing".
+- Respond with JSON only, in exactly this shape:
+{"recipes":[{"title":string,"description":string,"servings":string,"ingredients":[{"name":string,"status":"have"|"staple"|"missing"}],"steps":[string]}]}`;
+
+function buildUserPrompt(items: InventoryItem[]): string {
   const active = items
     .filter((i) => !i.consumed)
     .sort((a, b) => daysUntil(a.expiryDate) - daysUntil(b.expiryDate));
@@ -49,28 +62,15 @@ function buildPrompt(items: InventoryItem[]): string {
     daysUntilExpiry: daysUntil(i.expiryDate),
   }));
 
-  return `You are a home cooking assistant. Given the items in the user's fridge and a list of assumed pantry staples, suggest recipes the user can make.
-
-Rules:
-- Prioritize items that expire soonest; try to use them up.
-- Mark an ingredient "have" only when it plausibly matches an item in the fridge list. Match by common sense, not exact wording (e.g. "sour cream" matches "cream", "chicken breast" matches "chicken"). Do NOT mark "have" for anything not in the fridge list.
-- Mark an ingredient "staple" only when it is a basic pantry item from the staples list.
-- Otherwise mark it "missing" (the user would need to buy it).
-- Produce exactly 5 recipes, preferring those with many "have" ingredients and few "missing".
-- Respond with JSON only, in exactly this shape:
-{"recipes":[{"title":string,"description":string,"servings":string,"ingredients":[{"name":string,"status":"have"|"staple"|"missing"}],"steps":[string]}]}
-
-Fridge items (sorted by days until expiry):
+  return `Fridge items (sorted by days until expiry):
 ${JSON.stringify(fridge, null, 2)}
 
 Assumed pantry staples:
 ${STAPLES.join(", ")}`;
 }
 
-interface GeminiResponse {
-  candidates?: Array<{
-    content?: { parts?: Array<{ text?: string }> };
-  }>;
+interface GroqResponse {
+  choices?: Array<{ message?: { content?: string } }>;
 }
 
 function asStatus(value: unknown): IngredientStatus {
@@ -114,8 +114,12 @@ export async function generateRecipes(items: InventoryItem[]): Promise<Recipe[]>
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: MODEL,
-      contents: [{ role: "user", parts: [{ text: buildPrompt(items) }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.7 },
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: buildUserPrompt(items) },
+      ],
+      temperature: 0.7,
+      response_format: { type: "json_object" },
     }),
   });
 
@@ -124,8 +128,8 @@ export async function generateRecipes(items: InventoryItem[]): Promise<Recipe[]>
     throw new Error(`Recipe service error (${res.status}): ${text.slice(0, 200)}`);
   }
 
-  const data = (await res.json()) as GeminiResponse;
-  const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
+  const data = (await res.json()) as GroqResponse;
+  const text = data.choices?.[0]?.message?.content ?? "";
   if (!text.trim()) {
     throw new Error("Recipe service returned no content.");
   }

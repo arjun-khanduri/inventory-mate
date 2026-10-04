@@ -177,7 +177,7 @@ export default function Home() {
                 <p className="mb-1 font-medium">Recipe service not configured.</p>
                 <p>
                   Deploy the worker in <code className="text-xs">worker/worker.js</code> to Cloudflare,
-                  set its <code className="text-xs">GEMINI_API_KEY</code> secret, then set{" "}
+                  set its <code className="text-xs">GROQ_API_KEY</code> secret, then set{" "}
                   <code className="text-xs">NEXT_PUBLIC_RECIPE_API_URL</code> to the worker URL and
                   rebuild.
                 </p>

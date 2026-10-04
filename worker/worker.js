@@ -1,11 +1,12 @@
 /**
- * Cloudflare Worker proxy for the Gemini API.
+ * Cloudflare Worker proxy for the Groq chat API (hosted open-weight models:
+ * Llama / Mistral / Qwen / DeepSeek-R1). The browser calls this worker; it
+ * never touches your Groq key directly.
  *
- * The browser calls this worker (it never touches your Gemini key directly).
  * Deploy with:
  *   npx wrangler deploy
  * and set the secret:
- *   npx wrangler secret put GEMINI_API_KEY
+ *   npx wrangler secret put GROQ_API_KEY
  *
  * The model can be overridden per request via the `model` field in the body.
  */
@@ -25,8 +26,8 @@ export default {
     if (url.pathname !== "/" || request.method !== "POST") {
       return new Response(JSON.stringify({ error: "Not found" }), { status: 404, headers });
     }
-    if (!env.GEMINI_API_KEY) {
-      return new Response(JSON.stringify({ error: "Worker is missing GEMINI_API_KEY" }), {
+    if (!env.GROQ_API_KEY) {
+      return new Response(JSON.stringify({ error: "Worker is missing GROQ_API_KEY" }), {
         status: 500,
         headers,
       });
@@ -39,18 +40,19 @@ export default {
       return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers });
     }
 
-    const model = typeof body.model === "string" ? body.model : "gemini-3-flash-preview";
-    const upstream = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+    const model = typeof body.model === "string" ? body.model : "llama-3.3-70b-versatile";
 
-    const resp = await fetch(upstream, {
+    const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-goog-api-key": env.GEMINI_API_KEY,
+        Authorization: `Bearer ${env.GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        contents: body.contents,
-        generationConfig: body.generationConfig,
+        model,
+        messages: body.messages,
+        temperature: body.temperature ?? 0.7,
+        response_format: body.response_format,
       }),
     });
 
