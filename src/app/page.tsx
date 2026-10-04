@@ -184,7 +184,7 @@ export default function Home() {
                                     </div>
                                     <button onClick={handleGenerate} disabled={generating || activeItems.length === 0 || !isConfigured()} className="rounded-2xl bg-accent px-5 py-3 text-sm font-bold text-white shadow-lg shadow-accent/20 transition-all hover:-translate-y-0.5 hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-40">{generating ? "Finding your next meal…" : "Generate recipes"}</button>
                                 </div>
-                                {!isConfigured() && <p className="mt-5 rounded-xl bg-accent-soft p-3 text-xs leading-5 text-accent-strong">Recipe generation is not configured yet. Connect the worker URL to unlock personalized ideas.</p>}
+                                {!isConfigured() && <p className="mt-5 rounded-xl bg-accent-soft p-3 text-xs leading-5 text-accent-strong">This is not on you. We apologize for the inconvenience.</p>}
                                 {error && <p className="mt-4 text-sm text-danger">{error}</p>}
                             </div>
                             {deck.length > 0 && <RecipeDeck recipes={deck} onOpen={setSelected} onSave={saveRecipe} isSaved={isSaved} />}
