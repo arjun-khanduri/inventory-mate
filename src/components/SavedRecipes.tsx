@@ -1,4 +1,34 @@
 "use client";
-import type { Recipe } from "@/lib/types";
-import { coveragePercent } from "@/lib/recipes";
-export function SavedRecipes({ recipes, onOpen }: { recipes: Recipe[]; onOpen: (r: Recipe) => void }) { if (!recipes.length) return <div className="card-surface flex flex-col items-center rounded-3xl border-dashed p-12 text-center"><div className="mb-4 grid size-12 place-items-center rounded-2xl bg-accent-soft text-xl text-accent">♡</div><p className="font-bold">No saved recipes yet.</p><p className="mt-1 text-sm text-muted">Save a favorite from the Cook tab and it will live here.</p></div>; return <div className="grid gap-3 sm:grid-cols-2">{recipes.map((r, i) => <button key={r.id} type="button" onClick={() => onOpen(r)} className={`card-surface row-hover flex flex-col gap-5 rounded-3xl p-5 text-left animate-rise delay-${Math.min(i + 1, 3)}`}><div className="flex items-start justify-between gap-3"><span className="rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-bold text-accent-strong">{coveragePercent(r.ingredients)}% on hand</span><span className="text-muted">↗</span></div><div><h3 className="font-bold">{r.title}</h3>{r.description && <p className="mt-2 line-clamp-2 text-sm leading-5 text-muted">{r.description}</p>}</div></button>)}</div>; }
+
+import type {Recipe} from "@/lib/types";
+import {coveragePercent} from "@/lib/recipes";
+
+export function SavedRecipes({ recipes, onOpen }: { recipes: Recipe[]; onOpen: (r: Recipe) => void }) {
+    if (!recipes.length) {
+        return <div className="card-surface flex flex-col items-center rounded-3xl border-dashed p-12 text-center">
+            <div className="mb-4 grid size-12 place-items-center rounded-2xl bg-accent-soft text-xl text-accent">♡</div>
+            <p className="font-bold">No saved recipes yet.</p>
+            <p className="mt-1 text-sm text-muted">Save a favorite from the Cook tab and it will live here.</p>
+        </div>;
+    }
+    return <div className="grid gap-3 sm:grid-cols-2">
+        {recipes.map((r, i) =>
+            <button key={r.id}
+                    type="button"
+                    onClick={() => onOpen(r)}
+                    className={`card-surface row-hover flex flex-col gap-5 rounded-3xl p-5 text-left animate-rise delay-${Math.min(i + 1, 3)}`}>
+                <div className="flex items-start justify-between gap-3">
+                    <span className="rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-bold text-accent-strong">
+                        {coveragePercent(r.ingredients)}% on hand
+                    </span>
+                    <span className="text-muted">↗</span>
+                </div>
+                <div>
+                    <h3 className="font-bold">{r.title}</h3>
+                    {r.description && <p className="mt-2 line-clamp-2 text-sm leading-5 text-muted">
+                        {r.description}
+                    </p>}
+                </div>
+            </button>)}
+    </div>;
+}

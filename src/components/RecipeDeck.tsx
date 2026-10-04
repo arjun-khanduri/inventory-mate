@@ -1,6 +1,95 @@
 "use client";
-import { useRef, useState } from "react";
-import type { Recipe } from "@/lib/types";
-import { coveragePercent } from "@/lib/recipes";
-interface Props { recipes: Recipe[]; onOpen: (r: Recipe) => void; onSave: (r: Recipe) => void; isSaved: (id: string) => boolean; }
-export function RecipeDeck({ recipes, onOpen, onSave, isSaved }: Props) { const [index, setIndex] = useState(0); const startX = useRef<number | null>(null); if (!recipes.length) return null; const i = Math.min(index, recipes.length - 1); const recipe = recipes[i]; const coverage = coveragePercent(recipe.ingredients); const next = () => setIndex((p) => (p + 1) % recipes.length); const prev = () => setIndex((p) => (p - 1 + recipes.length) % recipes.length); return <div className="animate-float"><div className="mb-4 flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-accent">Your recipe picks</p><p className="mt-1 text-sm text-muted">Swipe or use the controls to explore.</p></div><span className="text-sm font-bold text-muted">{i + 1} <span className="font-normal">of {recipes.length}</span></span></div><div role="button" tabIndex={0} onPointerDown={(e) => { startX.current = e.clientX; }} onPointerUp={(e) => { if (startX.current === null) return; const delta = e.clientX - startX.current; if (Math.abs(delta) > 40) { if (delta < 0) next(); else prev(); } else { onOpen(recipe); } startX.current = null; }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(recipe); } }} style={{ touchAction: "pan-y" }} className="card-surface relative mx-auto max-w-2xl cursor-pointer overflow-hidden rounded-[2rem] p-7 outline-none transition-transform hover:-translate-y-1 sm:p-10"><div className="absolute right-0 top-0 size-40 rounded-full bg-accent-soft blur-3xl" /><div className="relative"><div className="mb-8 flex items-center gap-2 text-xs font-bold uppercase tracking-[.14em] text-accent"><span className="size-2 rounded-full bg-accent" /> {coverage}% of ingredients on hand</div><h3 className="max-w-xl text-3xl font-bold tracking-[-.04em] sm:text-4xl">{recipe.title}</h3>{recipe.description && <p className="mt-4 max-w-xl text-sm leading-6 text-muted sm:text-base">{recipe.description}</p>}<div className="mt-8 flex flex-wrap gap-2 text-xs font-semibold text-muted">{recipe.servings && <span className="rounded-full border border-line px-3 py-1.5">Serves {recipe.servings}</span>}<span className="rounded-full border border-line px-3 py-1.5">Tap for full recipe</span></div></div></div><div className="mt-4 flex items-center justify-center gap-2"><button type="button" onClick={prev} className="rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-muted transition hover:bg-card hover:text-foreground">Previous</button><button type="button" onClick={() => onSave(recipe)} disabled={isSaved(recipe.id)} className="rounded-xl bg-accent px-4 py-2.5 text-sm font-bold text-white transition hover:bg-accent-strong disabled:opacity-50">{isSaved(recipe.id) ? "Saved" : "Save recipe"}</button><button type="button" onClick={next} className="rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-muted transition hover:bg-card hover:text-foreground">Next</button></div></div>; }
+
+import {useRef, useState} from "react";
+import type {Recipe} from "@/lib/types";
+import {coveragePercent} from "@/lib/recipes";
+
+interface Props {
+    recipes: Recipe[];
+    onOpen: (r: Recipe) => void;
+    onSave: (r: Recipe) => void;
+    isSaved: (id: string) => boolean;
+}
+
+export function RecipeDeck({ recipes, onOpen, onSave, isSaved }: Props) {
+    const [index, setIndex] = useState(0);
+    const startX = useRef<number | null>(null);
+
+    if (!recipes.length) return null;
+
+    const i = Math.min(index, recipes.length - 1);
+    const recipe = recipes[i];
+    const coverage = coveragePercent(recipe.ingredients);
+
+    const next = () => setIndex((p) => (p + 1) % recipes.length);
+    const prev = () => setIndex((p) => (p - 1 + recipes.length) % recipes.length);
+
+    return <div className="animate-float">
+        <div className="mb-4 flex items-center justify-between">
+            <div>
+                <p className="text-xs font-bold uppercase tracking-[.16em] text-accent">Your recipe picks</p>
+                <p className="mt-1 text-sm text-muted">Swipe or use the controls to explore.</p>
+            </div>
+            <span className="text-sm font-bold text-muted">
+                {i + 1} <span className="font-normal">of {recipes.length}</span>
+            </span>
+        </div>
+        <div role="button"
+             tabIndex={0}
+             onPointerDown={(e) => {
+                 startX.current = e.clientX;
+             }}
+             onPointerUp={(e) => {
+                 if (startX.current === null) return;
+                 const delta = e.clientX - startX.current;
+                 if (Math.abs(delta) > 40) {
+                     if (delta < 0) next();
+                     else prev();
+                 } else {
+                     onOpen(recipe);
+                 }
+                 startX.current = null;
+             }}
+             onKeyDown={(e) => {
+                 if (e.key === "Enter" || e.key === " ") {
+                     e.preventDefault();
+                     onOpen(recipe);
+                 }
+             }}
+             style={{touchAction: "pan-y"}}
+             className="card-surface relative mx-auto max-w-2xl cursor-pointer overflow-hidden rounded-[2rem] p-7 outline-none transition-transform hover:-translate-y-1 sm:p-10">
+            <div className="absolute right-0 top-0 size-40 rounded-full bg-accent-soft blur-3xl" />
+            <div className="relative">
+                <div className="mb-8 flex items-center gap-2 text-xs font-bold uppercase tracking-[.14em] text-accent">
+                    <span className="size-2 rounded-full bg-accent" /> {coverage}% of ingredients on hand
+                </div>
+                <h3 className="max-w-xl text-3xl font-bold tracking-[-.04em] sm:text-4xl">{recipe.title}</h3>
+                {recipe.description && <p className="mt-4 max-w-xl text-sm leading-6 text-muted sm:text-base">
+                    {recipe.description}
+                </p>}
+                <div className="mt-8 flex flex-wrap gap-2 text-xs font-semibold text-muted">
+                    {recipe.servings && <span className="rounded-full border border-line px-3 py-1.5">Serves {recipe.servings}</span>}
+                    <span className="rounded-full border border-line px-3 py-1.5">Tap for full recipe</span>
+                </div>
+            </div>
+        </div>
+        <div className="mt-4 flex items-center justify-center gap-2">
+            <button type="button"
+                    onClick={prev}
+                    className="rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-muted transition hover:bg-card hover:text-foreground">
+                Previous
+            </button>
+            <button type="button"
+                    onClick={() => onSave(recipe)}
+                    disabled={isSaved(recipe.id)}
+                    className="rounded-xl bg-accent px-4 py-2.5 text-sm font-bold text-white transition hover:bg-accent-strong disabled:opacity-50">
+                {isSaved(recipe.id) ? "Saved" : "Save recipe"}
+            </button>
+            <button type="button"
+                    onClick={next}
+                    className="rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-muted transition hover:bg-card hover:text-foreground">
+                Next
+            </button>
+        </div>
+    </div>;
+}
