@@ -6,11 +6,11 @@ import { uid } from "./id";
  * Recipe generation runs on Groq's hosted open-weight models (Llama/Mistral/Qwen)
  * through a serverless proxy (the Cloudflare Worker in `worker/`), which holds the key.
  *
- * Env vars (both NEXT_PUBLIC_ so they are inlined at build time):
- *   NEXT_PUBLIC_RECIPE_API_URL -> your deployed Worker URL
- *   NEXT_PUBLIC_RECIPE_MODEL   -> optional, defaults to llama-3.3-70b-versatile
+ * The Worker URL is not secret, so it ships as a default; override with
+ * NEXT_PUBLIC_RECIPE_API_URL if you ever move the Worker.
  */
-const API_URL = process.env.NEXT_PUBLIC_RECIPE_API_URL;
+const API_URL =
+  process.env.NEXT_PUBLIC_RECIPE_API_URL ?? "https://inventory-mate-recipes.arkh18cs.workers.dev";
 const MODEL = process.env.NEXT_PUBLIC_RECIPE_MODEL ?? "qwen/qwen3.8-27b";
 
 export const STAPLES: string[] = [
