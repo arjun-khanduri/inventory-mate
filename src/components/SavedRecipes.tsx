@@ -1,43 +1,4 @@
 "use client";
-
 import type { Recipe } from "@/lib/types";
 import { coveragePercent } from "@/lib/recipes";
-
-interface Props {
-  recipes: Recipe[];
-  onOpen: (r: Recipe) => void;
-}
-
-export function SavedRecipes({ recipes, onOpen }: Props) {
-  if (recipes.length === 0) {
-    return (
-      <p className="rounded-2xl border border-dashed border-zinc-300 p-6 text-center text-sm text-zinc-500 dark:border-zinc-700">
-        No saved recipes yet. Save one from the Cook tab.
-      </p>
-    );
-  }
-
-  return (
-    <ul className="flex flex-col gap-2">
-      {recipes.map((r) => (
-        <li key={r.id}>
-          <button
-            type="button"
-            onClick={() => onOpen(r)}
-            className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-left hover:border-emerald-500 dark:border-zinc-800 dark:bg-zinc-900"
-          >
-            <div className="flex items-center justify-between gap-3">
-              <span className="truncate font-medium">{r.title}</span>
-              <span className="shrink-0 text-sm font-semibold text-emerald-600">
-                {coveragePercent(r.ingredients)}%
-              </span>
-            </div>
-            {r.description && (
-              <p className="truncate text-xs text-zinc-500">{r.description}</p>
-            )}
-          </button>
-        </li>
-      ))}
-    </ul>
-  );
-}
+export function SavedRecipes({ recipes, onOpen }: { recipes: Recipe[]; onOpen: (r: Recipe) => void }) { if (!recipes.length) return <div className="card-surface flex flex-col items-center rounded-3xl border-dashed p-12 text-center"><div className="mb-4 grid size-12 place-items-center rounded-2xl bg-accent-soft text-xl text-accent">♡</div><p className="font-bold">No saved recipes yet.</p><p className="mt-1 text-sm text-muted">Save a favorite from the Cook tab and it will live here.</p></div>; return <div className="grid gap-3 sm:grid-cols-2">{recipes.map((r, i) => <button key={r.id} type="button" onClick={() => onOpen(r)} className={`card-surface row-hover flex flex-col gap-5 rounded-3xl p-5 text-left animate-rise delay-${Math.min(i + 1, 3)}`}><div className="flex items-start justify-between gap-3"><span className="rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-bold text-accent-strong">{coveragePercent(r.ingredients)}% on hand</span><span className="text-muted">↗</span></div><div><h3 className="font-bold">{r.title}</h3>{r.description && <p className="mt-2 line-clamp-2 text-sm leading-5 text-muted">{r.description}</p>}</div></button>)}</div>; }

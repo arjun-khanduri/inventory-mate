@@ -3,8 +3,8 @@ import { ServiceWorker } from "@/components/ServiceWorker";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Fridge",
-  description: "What's expiring, and what can you make with it?",
+  title: "Fridgeful — eat well, waste less",
+  description: "A calmer way to track your food, use what is fresh, and find your next favorite meal.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/icons/icon.svg",

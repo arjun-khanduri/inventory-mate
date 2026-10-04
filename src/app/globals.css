@@ -1,24 +1,22 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+:root { --background: #f7f8f4; --foreground: #19221d; --muted: #69756d; --line: #dfe6de; --card: #ffffff; --accent: #2f7d58; --accent-strong: #246344; --accent-soft: #e6f2e8; --warm: #f5b942; --danger: #c95c54; }
+@theme inline { --color-background: var(--background); --color-foreground: var(--foreground); --color-muted: var(--muted); --color-line: var(--line); --color-card: var(--card); --color-accent: var(--accent); --color-accent-strong: var(--accent-strong); --color-accent-soft: var(--accent-soft); --color-warm: var(--warm); --color-danger: var(--danger); }
+* { box-sizing: border-box; }
+html { background: var(--background); }
+body { margin: 0; background: var(--background); color: var(--foreground); font-family: Arial, Helvetica, sans-serif; letter-spacing: -0.01em; }
+button, input, select { font: inherit; } button { cursor: pointer; }
+@keyframes rise-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes float-in { from { opacity: 0; transform: scale(.98); } to { opacity: 1; transform: scale(1); } }
+.animate-rise { animation: rise-in .55s cubic-bezier(.22,1,.36,1) both; }
+.animate-float { animation: float-in .45s cubic-bezier(.22,1,.36,1) both; }
+.delay-1 { animation-delay: .08s; } .delay-2 { animation-delay: .16s; } .delay-3 { animation-delay: .24s; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+::selection { background: #b9ddc3; color: #193024; }
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 3px solid #a8d2b3; outline-offset: 2px; }
+@media (prefers-color-scheme: dark) { :root { --background: #111713; --foreground: #edf5ed; --muted: #a6b4a8; --line: #2a382e; --card: #19231c; --accent-soft: #1d3626; } }
+.app-shell { background: radial-gradient(circle at 85% -10%, rgba(180,220,181,.27), transparent 32rem), var(--background); }
+@media (prefers-color-scheme: dark) { .app-shell { background: radial-gradient(circle at 85% -10%, rgba(48,104,71,.24), transparent 32rem), var(--background); } }
+.card-surface { background: color-mix(in srgb, var(--card) 92%, transparent); border: 1px solid var(--line); box-shadow: 0 18px 45px rgba(35,65,43,.06); }
+.row-hover { transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.row-hover:hover { transform: translateY(-2px); border-color: #afd2b4; box-shadow: 0 10px 24px rgba(45,94,57,.09); }
